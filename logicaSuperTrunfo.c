@@ -1,173 +1,177 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h> // Para uso de exit()
 
-// Estrutura para representar uma carta do Super Trunfo (País/Estado)
+// Estrutura para representar uma carta do Super Trunfo (País)
 typedef struct {
     char nome_pais[50];
     char codigo_carta[5];
-    int populacao;          // Em milhões de habitantes (int para simplificação)
-    float area;             // Em milhares de km² (float)
-    float pib;              // Em trilhões de R$ (float)
+    int populacao;          // Em milhões de habitantes
+    float area;             // Em milhares de km²
+    float pib;              // Em trilhões de R$
     int pontos_turisticos;
-    float densidade_demografica; // Calculado: Populacao / Area
+    float densidade_demografica; // Calculado
 } CartaSuperTrunfo;
+
+// Array de nomes dos atributos para exibição
+const char *ATRIBUTOS_NOMES[] = {
+    "", // Índice 0 não usado para corresponder às opções do menu (1-5)
+    "População (Milhões)",
+    "Área (Milhares de km²)",
+    "PIB (Trilhões de R$)",
+    "Pontos Turísticos",
+    "Densidade Demográfica (VENCE O MENOR)"
+};
 
 /**
  * @brief Função para calcular a densidade demográfica.
  * @param carta Ponteiro para a struct CartaSuperTrunfo a ser atualizada.
  */
 void calcular_atributos_derivados(CartaSuperTrunfo *carta) {
-    // Cálculo da Densidade Demográfica (População / Área)
-    // As unidades são simplificadas (Milhões / Milhares) mas a proporção é mantida.
     if (carta->area > 0) {
         carta->densidade_demografica = (float)carta->populacao / carta->area;
     } else {
         carta->densidade_demografica = 0.0;
     }
-    // NOTA: O PIB per capita não foi incluído no menu, então não é recalculado aqui.
 }
 
 /**
- * @brief Função que implementa a lógica de comparação principal usando if-else aninhados.
- * @param carta1 Dados da primeira carta.
- * @param carta2 Dados da segunda carta.
- * @param atributo_valor1 O valor do atributo escolhido para a Carta 1.
- * @param atributo_valor2 O valor do atributo escolhido para a Carta 2.
- * @param maior_valor_vence Regra de comparação: 1 se maior valor vence, 0 se menor valor vence.
- * @param nome_atributo Nome do atributo sendo comparado.
+ * @brief Retorna o valor de um atributo específico da carta.
+ * @param carta A carta a ser inspecionada.
+ * @param opcao O índice do atributo (1-5) conforme o menu.
+ * @return O valor float do atributo.
  */
-void comparar_cartas(CartaSuperTrunfo carta1, CartaSuperTrunfo carta2, float atributo_valor1, float atributo_valor2, int maior_valor_vence, const char *nome_atributo) {
-    
-    printf("\n--- Comparacao de Cartas ---\n");
-    printf("Atributo: **%s**\n", nome_atributo);
-    printf("Carta 1 (%s): %.2f\n", carta1.nome_pais, atributo_valor1);
-    printf("Carta 2 (%s): %.2f\n", carta2.nome_pais, atributo_valor2);
-    printf("----------------------------\n");
-    
-    // Início da lógica com estruturas de decisão aninhadas
-    if (maior_valor_vence) {
-        // Bloco principal: Se o MAIOR valor vence (População, Área, PIB, Pontos Turísticos)
-        if (atributo_valor1 > atributo_valor2) {
-            printf("Resultado: **Carta 1 (%s) VENCEU!**\n", carta1.nome_pais);
-        } else if (atributo_valor2 > atributo_valor1) {
-            printf("Resultado: **Carta 2 (%s) VENCEU!**\n", carta2.nome_pais);
-        } else {
-            printf("Resultado: **Empate!**\n");
-        }
-    } else {
-        // Bloco secundário (aninhado): Se o MENOR valor vence (Densidade Demográfica)
-        if (atributo_valor1 < atributo_valor2) {
-            printf("Resultado: **Carta 1 (%s) VENCEU!**\n", carta1.nome_pais);
-        } else if (atributo_valor2 < atributo_valor1) {
-            printf("Resultado: **Carta 2 (%s) VENCEU!**\n", carta2.nome_pais);
-        } else {
-            printf("Resultado: **Empate!**\n");
-        }
+float get_valor_atributo(CartaSuperTrunfo carta, int opcao) {
+    switch (opcao) {
+        case 1: return (float)carta.populacao;
+        case 2: return carta.area;
+        case 3: return carta.pib;
+        case 4: return (float)carta.pontos_turisticos;
+        case 5: return carta.densidade_demografica;
+        default: return 0.0; // Opção inválida
     }
-    printf("----------------------------\n");
 }
 
+/**
+ * @brief Exibe o menu dinâmico de escolha de atributos.
+ * @param atributo_ja_escolhido O índice do atributo já selecionado (0 se for a primeira escolha).
+ */
+void exibir_menu_dinamico(int atributo_ja_escolhido) {
+    printf("\nOpcoes de Atributo:\n");
+    for (int i = 1; i <= 5; i++) {
+        // Verifica se o atributo atual é o que já foi escolhido
+        if (i != atributo_ja_escolhido) {
+            printf("%d - %s\n", i, ATRIBUTOS_NOMES[i]);
+        }
+    }
+}
 
 /**
  * @brief Função principal para execução do desafio.
  */
 int main() {
-    // 1. DADOS DAS CARTAS (Países)
-    // As cartas são pré-definidas no código (simplificação do nível).
+    // 1. DADOS DAS CARTAS (Países) - Reutilização do desafio anterior
     
     // Carta 1: Brasil
     CartaSuperTrunfo carta1;
     strcpy(carta1.nome_pais, "Brasil");
     strcpy(carta1.codigo_carta, "A001");
-    carta1.populacao = 214;       // Aprox. 214 milhões
-    carta1.area = 8516;           // Aprox. 8.516 mil km²
-    carta1.pib = 1.6;             // Aprox. 1.6 trilhões de R$
+    carta1.populacao = 214; 
+    carta1.area = 8516;     
+    carta1.pib = 1.6;       
     carta1.pontos_turisticos = 40;
 
     // Carta 2: Alemanha
     CartaSuperTrunfo carta2;
     strcpy(carta2.nome_pais, "Alemanha");
     strcpy(carta2.codigo_carta, "A002");
-    carta2.populacao = 84;        // Aprox. 84 milhões
-    carta2.area = 357;            // Aprox. 357 mil km²
-    carta2.pib = 4.4;             // Aprox. 4.4 trilhões de R$
+    carta2.populacao = 84;   
+    carta2.area = 357;      
+    carta2.pib = 4.4;       
     carta2.pontos_turisticos = 25;
 
     // 2. CÁLCULO DE ATRIBUTOS DERIVADOS
     calcular_atributos_derivados(&carta1);
     calcular_atributos_derivados(&carta2);
     
-    int escolha = 0;
+    int escolha1 = 0;
+    int escolha2 = 0;
     
     printf("==========================================\n");
-    printf("   SUPER TRUNFO - DESAFIO NIVEL AVENTUREIRO\n");
+    printf("   SUPER TRUNFO - DESAFIO NIVEL MESTRE\n");
     printf("------------------------------------------\n");
     printf("Comparando: **Carta 1 (%s)** vs **Carta 2 (%s)**\n", carta1.nome_pais, carta2.nome_pais);
     printf("==========================================\n");
 
-    // 3. MENU INTERATIVO
-    printf("\nEscolha o atributo para a comparacao:\n");
-    printf("1 - População (Milhoes)\n");
-    printf("2 - Área (Milhares de km²)\n");
-    printf("3 - PIB (Trilhões de R$)\n");
-    printf("4 - Pontos Turísticos\n");
-    printf("5 - Densidade Demográfica (VENCE O MENOR VALOR)\n");
-    printf("------------------------------------------\n");
-    printf("Digite sua escolha (1-5): ");
+    // 3. ESCOLHA DO PRIMEIRO ATRIBUTO (Menu Dinâmico - Escolha 1)
+    exibir_menu_dinamico(0); // 0 indica que nenhum atributo foi escolhido ainda
+    printf("Digite a **primeira** escolha (1-5): ");
+    if (scanf("%d", &escolha1) != 1 || escolha1 < 1 || escolha1 > 5) {
+        printf("\nErro: Entrada invalida para o primeiro atributo. Encerrando.\n");
+        return 1;
+    }
+
+    // 4. ESCOLHA DO SEGUNDO ATRIBUTO (Menu Dinâmico - Escolha 2)
+    exibir_menu_dinamico(escolha1); // Passa a primeira escolha para removê-la do menu
+    printf("Digite a **segunda** escolha (1-5): ");
+    if (scanf("%d", &escolha2) != 1 || escolha2 < 1 || escolha2 > 5) {
+        printf("\nErro: Entrada invalida para o segundo atributo. Encerrando.\n");
+        return 1;
+    }
+
+    // 5. TRATAMENTO DE CONFLITO: Garante que os atributos são diferentes
+    if (escolha1 == escolha2) {
+        printf("\nErro: Os dois atributos escolhidos devem ser diferentes. Encerrando.\n");
+        return 1;
+    }
+
+    // 6. OBTENÇÃO DOS VALORES E REGRAS
+    float v1_a1 = get_valor_atributo(carta1, escolha1);
+    float v2_a1 = get_valor_atributo(carta2, escolha1);
+    float v1_a2 = get_valor_atributo(carta1, escolha2);
+    float v2_a2 = get_valor_atributo(carta2, escolha2);
     
-    // Leitura da escolha do usuário
-    if (scanf("%d", &escolha) != 1) {
-        printf("\nErro: Entrada invalida. Por favor, digite um numero.\n");
-        return 1; // Encerra com erro
+    // As regras de vitória são fixas: Densidade (5) vence o menor, os outros vencem o maior.
+    int maior_vence_a1 = (escolha1 == 5) ? 0 : 1; // Operador Ternário
+    int maior_vence_a2 = (escolha2 == 5) ? 0 : 1; // Operador Ternário
+
+    // 7. CÁLCULO DA SOMA DOS ATRIBUTOS
+    float soma_c1 = v1_a1 + v1_a2;
+    float soma_c2 = v2_a1 + v2_a2;
+
+    // 8. EXIBIÇÃO E DETERMINAÇÃO DO VENCEDOR (Baseado na Soma)
+    printf("\n==========================================\n");
+    printf("     RESULTADO DA COMPARACAO AVANCADA\n");
+    printf("==========================================\n");
+
+    // Exibição Detalhada
+    printf("\n--- Atributo 1: %s ---\n", ATRIBUTOS_NOMES[escolha1]);
+    printf("Carta 1 (%s): %.2f\n", carta1.nome_pais, v1_a1);
+    printf("Carta 2 (%s): %.2f\n", carta2.nome_pais, v2_a1);
+
+    printf("\n--- Atributo 2: %s ---\n", ATRIBUTOS_NOMES[escolha2]);
+    printf("Carta 1 (%s): %.2f\n", carta1.nome_pais, v1_a2);
+    printf("Carta 2 (%s): %.2f\n", carta2.nome_pais, v2_a2);
+
+    printf("\n--- Soma Total ---\n");
+    printf("Soma Carta 1 (%s): %.2f\n", carta1.nome_pais, soma_c1);
+    printf("Soma Carta 2 (%s): %.2f\n", carta2.nome_pais, soma_c2);
+    printf("------------------\n");
+
+    // Lógica Final de Vitória (baseada na soma total)
+    if (soma_c1 > soma_c2) {
+        printf("VENCEDOR: **Carta 1 (%s)** - A soma dos atributos foi maior! (%.2f > %.2f)\n", 
+               carta1.nome_pais, soma_c1, soma_c2);
+    } else if (soma_c2 > soma_c1) {
+        printf("VENCEDOR: **Carta 2 (%s)** - A soma dos atributos foi maior! (%.2f > %.2f)\n", 
+               carta2.nome_pais, soma_c2, soma_c1);
+    } else {
+        printf("**Resultado: Empate!** - A soma dos atributos é igual (%.2f)\n", soma_c1);
     }
+    printf("==========================================\n");
 
-    // Variáveis para armazenar o atributo escolhido e a regra de vitória
-    float valor1 = 0.0;
-    float valor2 = 0.0;
-    const char *nome_atributo;
-    int maior_valor_vence = 1; // 1 = Vence o maior valor (padrão)
-
-    // 4. ESTRUTURA SWITCH PARA TRATAR A ESCOLHA DO USUÁRIO
-    switch (escolha) {
-        case 1:
-            nome_atributo = "População";
-            valor1 = (float)carta1.populacao;
-            valor2 = (float)carta2.populacao;
-            maior_valor_vence = 1;
-            break;
-        case 2:
-            nome_atributo = "Área";
-            valor1 = carta1.area;
-            valor2 = carta2.area;
-            maior_valor_vence = 1;
-            break;
-        case 3:
-            nome_atributo = "PIB";
-            valor1 = carta1.pib;
-            valor2 = carta2.pib;
-            maior_valor_vence = 1;
-            break;
-        case 4:
-            nome_atributo = "Pontos Turísticos";
-            valor1 = (float)carta1.pontos_turisticos;
-            valor2 = (float)carta2.pontos_turisticos;
-            maior_valor_vence = 1;
-            break;
-        case 5:
-            nome_atributo = "Densidade Demográfica";
-            valor1 = carta1.densidade_demografica;
-            valor2 = carta2.densidade_demografica;
-            maior_valor_vence = 0; // REVERSÃO DA REGRA: Vence o menor valor
-            break;
-        default:
-            printf("\nOpcao invalida! Por favor, escolha um numero de 1 a 5.\n");
-            return 1; // Encerra com erro de opção
-    }
-
-    // 5. CHAMADA DA FUNÇÃO DE COMPARAÇÃO
-    // A função utiliza o atributo escolhido e a regra de vitória (maior_valor_vence)
-    // para determinar o vencedor usando a lógica if-else aninhada.
-    comparar_cartas(carta1, carta2, valor1, valor2, maior_valor_vence, nome_atributo);
+    // Nota: O programa não compara o 'ganhador individual' do atributo, 
+    // apenas a soma total, conforme o requisito do nível mestre.
 
     return 0;
 }
